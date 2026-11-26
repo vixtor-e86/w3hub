@@ -5,6 +5,8 @@ WhatsApp Image*.jpeg
 images/IMG_5028.jpeg
 images/*.HEIC
 images/*.MOV
-images/5.jpeg
-images/signature.jpeg
+images/*.jpeg
+!images/logo-*.jpeg
+!images/w3hub*.jpeg
+!images/w3writelab-3d.jpeg
 EasyFolio/
