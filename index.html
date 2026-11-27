@@ -288,7 +288,6 @@
                   </div>
                 </div>
                 <div class="portfolio-content">
-                  <span class="category">ELECTRICAL ENGINEERING • POWER ELECTRONICS • PCB DESIGN</span>
                   <h3 style="cursor: pointer;" onclick="openProjectDetailModal(11)">Design and Construction of a Pure Sine Wave Transformer-Based Inverter</h3>
                 </div>
               </div>
@@ -310,7 +309,6 @@
                   </div>
                 </div>
                 <div class="portfolio-content">
-                  <span class="category">MECHANICAL DESIGN • ROBOTICS • 3D MODELLING &amp; FABRICATION</span>
                   <h3 style="cursor: pointer;" onclick="openProjectDetailModal(4)">3D CAD Design, Animation &amp; Hardware of a 3-DOF Robotic Arm</h3>
                 </div>
               </div>
@@ -329,7 +327,6 @@
                   </div>
                 </div>
                 <div class="portfolio-content">
-                  <span class="category">ELECTRONICS • RENEWABLE ENERGY</span>
                   <h3 style="cursor: pointer;" onclick="openProjectDetailModal(1)">Solar-Powered Rechargeable Soldering Iron</h3>
                 </div>
               </div>
@@ -349,7 +346,6 @@
                   </div>
                 </div>
                 <div class="portfolio-content">
-                  <span class="category">ELECTRONICS • EMBEDDED SYSTEMS • DISPLAY TECHNOLOGY</span>
                   <h3 style="cursor: pointer;" onclick="openProjectDetailModal(17)">Design and Construction of a P10 LED Display Board</h3>
                 </div>
               </div>
@@ -369,7 +365,6 @@
                   </div>
                 </div>
                 <div class="portfolio-content">
-                  <span class="category">3D MODELLING • PRODUCT DESIGN • RAPID PROTOTYPING</span>
                   <h3 style="cursor: pointer;" onclick="openProjectDetailModal(13)">3D Design and Printing of a Contactless Thermometer Casing</h3>
                 </div>
               </div>
@@ -388,7 +383,6 @@
                   </div>
                 </div>
                 <div class="portfolio-content">
-                  <span class="category">ELECTRICAL ENGINEERING • POWER SYSTEMS • AUTOMATION</span>
                   <h3 style="cursor: pointer;" onclick="openProjectDetailModal(3)">Real-Time Transformer Temperature Monitoring System with Automatic Protection</h3>
                 </div>
               </div>
@@ -407,7 +401,6 @@
                   </div>
                 </div>
                 <div class="portfolio-content">
-                  <span class="category">RENEWABLE ENERGY • EMBEDDED SYSTEMS • IoT • SECURITY SYSTEMS</span>
                   <h3 style="cursor: pointer;" onclick="openProjectDetailModal(21)">Solar-Powered Motion Detection and Surveillance System</h3>
                 </div>
               </div>
@@ -427,7 +420,6 @@
                   </div>
                 </div>
                 <div class="portfolio-content">
-                  <span class="category">ELECTRICAL ENGINEERING • POWER SYSTEMS • FAULT DETECTION</span>
                   <h3 style="cursor: pointer;" onclick="openProjectDetailModal(23)">Underground Cable Open-Circuit Fault Detection System</h3>
                 </div>
               </div>
@@ -447,7 +439,6 @@
                   </div>
                 </div>
                 <div class="portfolio-content">
-                  <span class="category">ELECTRICAL ENGINEERING • BUILDING SERVICES • ELECTRICAL DESIGN</span>
                   <h3 style="cursor: pointer;" onclick="openProjectDetailModal(20)">Electrical Wiring Design and Diagram for a Twin Theatre Hall</h3>
                 </div>
               </div>
@@ -466,7 +457,6 @@
                   </div>
                 </div>
                 <div class="portfolio-content">
-                  <span class="category">ELECTRONICS • THERMAL ENGINEERING • EMBEDDED SYSTEMS</span>
                   <h3 style="cursor: pointer;" onclick="openProjectDetailModal(16)">Mini Peltier-Based Cooling System</h3>
                 </div>
               </div>
@@ -872,14 +862,12 @@
   <div class="modal fade" id="projectDetailsModal" tabindex="-1" aria-labelledby="projectModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content border-0 rounded-4 overflow-hidden shadow-lg">
-        <div class="position-relative" style="height: 360px; background: #0f1f4b;">
-          <img id="projectModalImage" src="" alt="" style="width: 100%; height: 100%; object-fit: contain; background: #0b1536;">
+        <div class="project-modal-stage">
+          <img id="projectModalImage" src="" alt="">
           <video id="projectModalVideo" autoplay loop muted playsinline controls class="d-none" style="width: 100%; height: 100%; object-fit: contain; background: #0f1f4b;"></video>
           <button type="button" id="projectModalPrevBtn" class="modal-nav-arrow prev d-none" aria-label="Previous Screen"><i class="bi bi-chevron-left"></i></button>
           <button type="button" id="projectModalNextBtn" class="modal-nav-arrow next d-none" aria-label="Next Screen"><i class="bi bi-chevron-right"></i></button>
           <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3 p-2 rounded-circle" data-bs-dismiss="modal" aria-label="Close" style="background-color: rgba(15, 31, 75, 0.8); opacity: 1; z-index: 6;"></button>
-          <span id="projectModalCategory" class="position-absolute top-0 start-0 m-3 px-3 py-1 rounded-pill text-white fw-semibold" style="background: var(--accent-color); font-size: 0.75rem; letter-spacing: 0.5px; text-transform: uppercase; z-index: 6;"></span>
-          <span id="projectModalScreenLabel" class="position-absolute bottom-0 end-0 m-3 px-3 py-1 rounded-pill text-white fw-medium d-none" style="background: rgba(11, 21, 54, 0.85); font-size: 0.75rem; z-index: 6; border: 1px solid rgba(255,255,255,0.18);"></span>
         </div>
 
         <!-- Multi-Screenshot Thumbnail Strip (Scrollbar-free centered bar) -->
@@ -1320,8 +1308,32 @@
 
     let currentModalProjectId = null;
     let currentModalScreenIdx = 0;
+    let projectModalAutoSlideTimer = null;
 
-    function switchProjectModalScreen(projectId, screenIdx) {
+    function stopProjectModalAutoSlide() {
+      if (projectModalAutoSlideTimer) {
+        clearInterval(projectModalAutoSlideTimer);
+        projectModalAutoSlideTimer = null;
+      }
+    }
+
+    function startProjectModalAutoSlide(projectId) {
+      stopProjectModalAutoSlide();
+      const project = W3HUB_PROJECTS_DATA[projectId];
+      if (!project || !project.screenshots || project.screenshots.length <= 1) return;
+
+      projectModalAutoSlideTimer = setInterval(() => {
+        const currShot = project.screenshots[currentModalScreenIdx];
+        const vidEl = document.getElementById('projectModalVideo');
+        // If current slide is an active playing video, let it play or advance when paused/ended
+        if (currShot && currShot.type === 'video' && vidEl && !vidEl.paused && !vidEl.ended) {
+          return;
+        }
+        switchProjectModalScreen(currentModalProjectId, currentModalScreenIdx + 1, false);
+      }, 3000);
+    }
+
+    function switchProjectModalScreen(projectId, screenIdx, resetTimer = true) {
       const project = W3HUB_PROJECTS_DATA[projectId];
       if (!project || !project.screenshots || !project.screenshots.length) return;
 
@@ -1333,7 +1345,6 @@
       const shot = project.screenshots[idx];
       const imgEl = document.getElementById('projectModalImage');
       const vidEl = document.getElementById('projectModalVideo');
-      const labelEl = document.getElementById('projectModalScreenLabel');
 
       if (shot.type === 'video') {
         imgEl.classList.add('d-none');
@@ -1342,23 +1353,28 @@
         vidEl.poster = shot.thumb || project.image;
         vidEl.muted = true;
         vidEl.defaultMuted = true;
+        vidEl.loop = (total === 1);
+        vidEl.onended = () => {
+          if (total > 1) switchProjectModalScreen(currentModalProjectId, currentModalScreenIdx + 1, true);
+        };
         vidEl.play().catch(() => {});
       } else {
         vidEl.pause();
         vidEl.classList.add('d-none');
         imgEl.classList.remove('d-none');
+        imgEl.style.opacity = '0.4';
         imgEl.src = shot.src;
         imgEl.alt = shot.label;
-      }
-
-      if (labelEl) {
-        labelEl.textContent = total > 1 ? `${shot.label} (${idx + 1}/${total})` : shot.label;
-        labelEl.classList.toggle('d-none', total <= 1);
+        setTimeout(() => { imgEl.style.opacity = '1'; }, 40);
       }
 
       document.querySelectorAll('#projectModalThumbStrip .modal-thumb-item').forEach((el, i) => {
         el.classList.toggle('active', i === idx);
       });
+
+      if (resetTimer && total > 1) {
+        startProjectModalAutoSlide(projectId);
+      }
     }
 
     function openProjectDetailModal(projectId) {
@@ -1385,18 +1401,18 @@
       if (shots.length > 1) {
         thumbStrip.classList.remove('d-none');
         thumbStrip.innerHTML = shots.map((s, idx) => `
-          <div class="modal-thumb-item ${idx === 0 ? 'active' : ''} position-relative" onclick="switchProjectModalScreen(${projectId}, ${idx})" title="${s.label}">
+          <div class="modal-thumb-item ${idx === 0 ? 'active' : ''} position-relative" onclick="switchProjectModalScreen(${projectId}, ${idx}, true)" title="${s.label}">
             <img src="${s.thumb || s.src}" alt="${s.label}">
             ${s.type === 'video' ? '<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(15,31,75,0.45);color:#fff;font-size:1.2rem;"><i class="bi bi-play-circle-fill"></i></span>' : ''}
           </div>
         `).join('');
         if (prevBtn) {
           prevBtn.classList.remove('d-none');
-          prevBtn.onclick = () => switchProjectModalScreen(currentModalProjectId, currentModalScreenIdx - 1);
+          prevBtn.onclick = () => switchProjectModalScreen(currentModalProjectId, currentModalScreenIdx - 1, true);
         }
         if (nextBtn) {
           nextBtn.classList.remove('d-none');
-          nextBtn.onclick = () => switchProjectModalScreen(currentModalProjectId, currentModalScreenIdx + 1);
+          nextBtn.onclick = () => switchProjectModalScreen(currentModalProjectId, currentModalScreenIdx + 1, true);
         }
       } else {
         thumbStrip.classList.add('d-none');
@@ -1404,9 +1420,8 @@
         if (nextBtn) nextBtn.classList.add('d-none');
       }
 
-      switchProjectModalScreen(projectId, 0);
+      switchProjectModalScreen(projectId, 0, true);
 
-      document.getElementById('projectModalCategory').textContent = project.category;
       document.getElementById('projectModalTitle').textContent = project.title;
       document.getElementById('projectModalOverview').textContent = project.overview;
       document.getElementById('projectModalTech').textContent = project.tech;
@@ -1460,7 +1475,6 @@
                 <img src="${p.image}" class="img-fluid" alt="${p.title}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
               </div>
               <div class="portfolio-content" style="padding: 18px 20px;">
-                <span class="category" style="font-size: 11px; color: var(--accent-color); font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 6px;">${p.category}</span>
                 <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--heading-color); margin: 0;">${p.title}</h4>
               </div>
             </div>
@@ -1505,6 +1519,7 @@
       const modalEl = document.getElementById('projectDetailsModal');
       if (modalEl) {
         modalEl.addEventListener('hidden.bs.modal', function() {
+          stopProjectModalAutoSlide();
           const vidEl = document.getElementById('projectModalVideo');
           if (vidEl) vidEl.pause();
         });
